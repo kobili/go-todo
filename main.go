@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"go-todo/database"
@@ -14,10 +14,6 @@ import (
 
 func main() {
 	app := fiber.New()
-
-	// app.Get("/", func(c *fiber.Ctx) error {
-	// 	return c.SendString("Hello, World!")
-	// })
 
 	mongoClient := database.InitMongoClient()
 
@@ -29,17 +25,32 @@ func main() {
 
 	coll := mongoClient.Database("go-todo").Collection("todos")
 
-	var result bson.M
-	err := coll.FindOne(context.TODO(), bson.D{{"text", "hello from mongodb"}}).Decode(&result)
-	if err == mongo.ErrNoDocuments {
-		fmt.Println("No document was found")
-	}
-	if err != nil {
-		panic(err)
-	}
+	app.Get("/todos/:todoId", func(c *fiber.Ctx) error {
+		var result bson.M
+
+		objId, err := primitive.ObjectIDFromHex(c.Params("todoId"))
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "Could not convert todoId string to ObjectID")
+		}
+
+		err = coll.FindOne(
+			context.Background(),
+			bson.D{{Key: "_id", Value: objId}},
+		).Decode(&result)
+
+		if err == mongo.ErrNoDocuments {
+			return fiber.NewError(fiber.StatusNotFound, "No todo was found with the given ID")
+		}
+
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(result)
+	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(result)
+		return c.SendString("Hello World")
 	})
 
 	log.Fatal(app.Listen(":3001"))
