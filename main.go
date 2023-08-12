@@ -10,11 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"go-todo/database"
+	"go-todo/models"
 )
-
-type Todo struct {
-	Text string
-}
 
 func main() {
 	app := fiber.New()
@@ -37,7 +34,7 @@ func main() {
 			return err
 		}
 
-		newTodo := Todo{Text: reqBody.Text}
+		newTodo := models.Todo{Text: reqBody.Text}
 		result, err := coll.InsertOne(context.TODO(), newTodo)
 		if err != nil {
 			return err
