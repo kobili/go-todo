@@ -8,24 +8,24 @@ import (
 	"go-todo/models"
 )
 
-type todoRouteHandler struct {
+type TodoRouteHandler struct {
 	todoRepo database.TodoRepo
 }
 
-func NewTodoRouteHandler(todoRepository database.TodoRepo) *todoRouteHandler {
-	return &todoRouteHandler{
+func NewTodoRouteHandler(todoRepository database.TodoRepo) *TodoRouteHandler {
+	return &TodoRouteHandler{
 		todoRepo: todoRepository,
 	}
 }
 
-func (t *todoRouteHandler) SetupRoutes(app *fiber.App) {
+func (t *TodoRouteHandler) SetupRoutes(app *fiber.App) {
 	app.Post("/todos", t.createTodo)
 	app.Get("/todos/:todoId", t.getTodoById)
 }
 
 // HANDLERS
 
-func (t *todoRouteHandler) createTodo(c *fiber.Ctx) error {
+func (t *TodoRouteHandler) createTodo(c *fiber.Ctx) error {
 	reqBody := struct {
 		Text string
 	}{}
@@ -41,7 +41,7 @@ func (t *todoRouteHandler) createTodo(c *fiber.Ctx) error {
 	return c.JSON(result)
 }
 
-func (t *todoRouteHandler) getTodoById(c *fiber.Ctx) error {
+func (t *TodoRouteHandler) getTodoById(c *fiber.Ctx) error {
 	result, err := t.todoRepo.FindById(c.Context(), c.Params("todoId"))
 
 	if err == mongo.ErrNoDocuments {
