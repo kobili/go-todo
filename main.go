@@ -12,6 +12,10 @@ import (
 	"go-todo/database"
 )
 
+type Todo struct {
+	Text string
+}
+
 func main() {
 	app := fiber.New()
 
@@ -24,6 +28,23 @@ func main() {
 	}()
 
 	coll := mongoClient.Database("go-todo").Collection("todos")
+
+	app.Post("/todos", func(c *fiber.Ctx) error {
+		reqBody := struct {
+			Text string
+		}{}
+		if err := c.BodyParser(&reqBody); err != nil {
+			return err
+		}
+
+		newTodo := Todo{Text: reqBody.Text}
+		result, err := coll.InsertOne(context.TODO(), newTodo)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(result)
+	})
 
 	app.Get("/todos/:todoId", func(c *fiber.Ctx) error {
 		var result bson.M
