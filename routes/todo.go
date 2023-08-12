@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"go-todo/database"
@@ -21,6 +22,7 @@ func NewTodoRouteHandler(todoRepository database.TodoRepo) *TodoRouteHandler {
 func (t *TodoRouteHandler) SetupRoutes(app *fiber.App) {
 	app.Post("/todos", t.createTodo)
 	app.Get("/todos/:todoId", t.getTodoById)
+	app.Patch("/todos/:todoId", t.updateTodoById)
 }
 
 // HANDLERS
@@ -48,6 +50,24 @@ func (t *TodoRouteHandler) getTodoById(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "No todo was found with the given ID")
 	}
 
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(result)
+}
+
+func (t *TodoRouteHandler) updateTodoById(c *fiber.Ctx) error {
+	var requestBody bson.M
+	if err := c.BodyParser(&requestBody); err != nil {
+		return err
+	}
+	id := c.Params("todoId")
+
+	result, err := t.todoRepo.UpdateById(c.Context(), id, requestBody)
+	if err == mongo.ErrNoDocuments {
+		return fiber.NewError(fiber.StatusNotFound, "No todo was found with the given ID")
+	}
 	if err != nil {
 		return err
 	}
