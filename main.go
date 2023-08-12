@@ -32,8 +32,10 @@ func setUpFiberApp(mongoClient *mongo.Client) *fiber.App {
 	})
 
 	// setup Todo routes
-	todoCollection := mongoClient.Database("go-todo").Collection("todos")
-	todoRouteHandler := routes.NewTodoRouteHandler(todoCollection)
+	todoRepo := database.NewTodoRepository(
+		mongoClient.Database("go-todo").Collection("todos"),
+	)
+	todoRouteHandler := routes.NewTodoRouteHandler(todoRepo)
 	todoRouteHandler.SetupRoutes(app)
 
 	return app

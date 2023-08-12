@@ -2,20 +2,19 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
+	"go-todo/database"
 	"go-todo/models"
 )
 
 type todoRouteHandler struct {
-	todoCollection *mongo.Collection
+	todoRepo database.TodoRepo
 }
 
-func NewTodoRouteHandler(todoCollection *mongo.Collection) *todoRouteHandler {
+func NewTodoRouteHandler(todoRepository database.TodoRepo) *todoRouteHandler {
 	return &todoRouteHandler{
-		todoCollection: todoCollection,
+		todoRepo: todoRepository,
 	}
 }
 
@@ -34,8 +33,7 @@ func (t *todoRouteHandler) createTodo(c *fiber.Ctx) error {
 		return err
 	}
 
-	newTodo := models.Todo{Text: reqBody.Text}
-	result, err := t.todoCollection.InsertOne(c.Context(), newTodo)
+	result, err := t.todoRepo.AddOne(c.Context(), models.Todo{Text: reqBody.Text})
 	if err != nil {
 		return err
 	}
@@ -44,17 +42,7 @@ func (t *todoRouteHandler) createTodo(c *fiber.Ctx) error {
 }
 
 func (t *todoRouteHandler) getTodoById(c *fiber.Ctx) error {
-	var result bson.M
-
-	objId, err := primitive.ObjectIDFromHex(c.Params("todoId"))
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Could not convert todoId string to ObjectID")
-	}
-
-	err = t.todoCollection.FindOne(
-		c.Context(),
-		bson.D{{Key: "_id", Value: objId}},
-	).Decode(&result)
+	result, err := t.todoRepo.FindById(c.Context(), c.Params("todoId"))
 
 	if err == mongo.ErrNoDocuments {
 		return fiber.NewError(fiber.StatusNotFound, "No todo was found with the given ID")
