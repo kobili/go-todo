@@ -15,7 +15,7 @@ func main() {
 	mongoClient := database.InitMongoClient()
 
 	defer func() {
-		if err := mongoClient.Disconnect(context.TODO()); err != nil {
+		if err := mongoClient.Disconnect(context.Background()); err != nil {
 			panic(err)
 		}
 	}()
@@ -31,6 +31,7 @@ func setUpFiberApp(mongoClient *mongo.Client) *fiber.App {
 		return c.SendString("Hello World")
 	})
 
+	// setup Todo routes
 	todoCollection := mongoClient.Database("go-todo").Collection("todos")
 	todoRouteHandler := routes.NewTodoRouteHandler(todoCollection)
 	todoRouteHandler.SetupRoutes(app)

@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"context"
-
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -37,7 +35,7 @@ func (t *todoRouteHandler) createTodo(c *fiber.Ctx) error {
 	}
 
 	newTodo := models.Todo{Text: reqBody.Text}
-	result, err := t.todoCollection.InsertOne(context.TODO(), newTodo)
+	result, err := t.todoCollection.InsertOne(c.Context(), newTodo)
 	if err != nil {
 		return err
 	}
@@ -54,7 +52,7 @@ func (t *todoRouteHandler) getTodoById(c *fiber.Ctx) error {
 	}
 
 	err = t.todoCollection.FindOne(
-		context.Background(),
+		c.Context(),
 		bson.D{{Key: "_id", Value: objId}},
 	).Decode(&result)
 
