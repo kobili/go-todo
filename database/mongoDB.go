@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -33,7 +32,6 @@ func NewMongoClient(lc fx.Lifecycle) *mongo.Client {
 			if err := client.Disconnect(context.Background()); err != nil {
 				return err
 			}
-			fmt.Println("Disconnecting MongoDB Client")
 			return nil
 		},
 	})

@@ -43,6 +43,9 @@ func NewFiberApp(lc fx.Lifecycle, todoRouteHandler *routes.TodoRouteHandler) *fi
 			go app.Listen(":3001")
 			return nil
 		},
+		OnStop: func(ctx context.Context) error {
+			return app.Shutdown()
+		},
 	})
 
 	return app
