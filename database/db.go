@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func InitDB() *mongo.Client {
+func InitMongoClient() *mongo.Client {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
