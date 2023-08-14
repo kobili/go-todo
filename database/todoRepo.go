@@ -13,6 +13,7 @@ type TodoRepo interface {
 	AddOne(ctx context.Context, document models.Todo) (*mongo.InsertOneResult, error)
 	FindById(ctx context.Context, id string) (primitive.M, error)
 	UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error)
+	ReplaceById(ctx context.Context, id string, todo models.Todo) (*mongo.UpdateResult, error)
 }
 
 type TodoRepository struct {
@@ -55,9 +56,7 @@ func (r *TodoRepository) FindById(ctx context.Context, id string) (primitive.M, 
 	return result, nil
 }
 
-// TODO: This is a bad idea, should specify which fields to update
 func (r *TodoRepository) UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error) {
-	// use a map[string]interface{} since we don't know what's gonna be in the request
 	updateFields := bson.M{
 		"text": requestBody.Text,
 	}
@@ -71,6 +70,24 @@ func (r *TodoRepository) UpdateById(ctx context.Context, id string, requestBody 
 		ctx,
 		bson.M{"_id": objId},
 		bson.M{"$set": updateFields},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *TodoRepository) ReplaceById(ctx context.Context, id string, todo models.Todo) (*mongo.UpdateResult, error) {
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.todoCollection.ReplaceOne(
+		ctx,
+		bson.M{"_id": objId},
+		todo,
 	)
 	if err != nil {
 		return nil, err

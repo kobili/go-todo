@@ -22,6 +22,7 @@ func (t *TodoRouteHandler) SetupRoutes(app *fiber.App) {
 	app.Post("/todos", t.createTodo)
 	app.Get("/todos/:todoId", t.getTodoById)
 	app.Patch("/todos/:todoId", t.updateTodoById)
+	app.Put("/todos/:todoId", t.replaceTodoById)
 }
 
 // HANDLERS
@@ -66,6 +67,26 @@ func (t *TodoRouteHandler) updateTodoById(c *fiber.Ctx) error {
 	id := c.Params("todoId")
 
 	result, err := t.todoRepo.UpdateById(c.Context(), id, requestBody)
+	if err == mongo.ErrNoDocuments {
+		return fiber.NewError(fiber.StatusNotFound, "No todo was found with the given ID")
+	}
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(result)
+}
+
+func (t *TodoRouteHandler) replaceTodoById(c *fiber.Ctx) error {
+	requestBody := struct {
+		Text string
+	}{}
+	if err := c.BodyParser(&requestBody); err != nil {
+		return err
+	}
+	id := c.Params("todoId")
+
+	result, err := t.todoRepo.ReplaceById(c.Context(), id, requestBody)
 	if err == mongo.ErrNoDocuments {
 		return fiber.NewError(fiber.StatusNotFound, "No todo was found with the given ID")
 	}
