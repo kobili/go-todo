@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"go-todo/models"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -51,7 +52,7 @@ func (r *TodoRepository) FindById(ctx context.Context, id string) (primitive.M, 
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(result)
 	return result, nil
 }
 

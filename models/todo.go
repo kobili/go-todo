@@ -4,7 +4,7 @@ import "time"
 
 type Todo struct {
 	Text     string
-	Metadata TodoMetadata
+	Metadata *TodoMetadata `json:",omitempty" bson:",omitempty"`
 }
 
 type TodoMetadata struct {
