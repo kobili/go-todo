@@ -12,7 +12,7 @@ import (
 
 type TodoRepo interface {
 	AddOne(ctx context.Context, todo models.Todo) (*mongo.InsertOneResult, error)
-	FindById(ctx context.Context, id string) (primitive.M, error)
+	FindById(ctx context.Context, id string) (*models.Todo, error)
 	UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error)
 }
 
@@ -36,8 +36,8 @@ func (r *TodoRepository) AddOne(ctx context.Context, todo models.Todo) (*mongo.I
 	return result, nil
 }
 
-func (r *TodoRepository) FindById(ctx context.Context, id string) (primitive.M, error) {
-	var result bson.M
+func (r *TodoRepository) FindById(ctx context.Context, id string) (*models.Todo, error) {
+	var result models.Todo // the mongo _id won't be included in result
 
 	objId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *TodoRepository) FindById(ctx context.Context, id string) (primitive.M, 
 		return nil, err
 	}
 	fmt.Println(result)
-	return result, nil
+	return &result, nil // TODO: find a way to include the _id in the response without it affecting creation
 }
 
 // TODO: This is a bad idea, should specify which fields to update
