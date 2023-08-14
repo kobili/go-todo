@@ -12,7 +12,7 @@ import (
 type TodoRepo interface {
 	AddOne(ctx context.Context, document models.Todo) (*mongo.InsertOneResult, error)
 	FindById(ctx context.Context, id string) (primitive.M, error)
-	UpdateById(ctx context.Context, id string, requestBody bson.M) (*mongo.UpdateResult, error)
+	UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error)
 }
 
 type TodoRepository struct {
@@ -55,10 +55,11 @@ func (r *TodoRepository) FindById(ctx context.Context, id string) (primitive.M, 
 	return result, nil
 }
 
-func (r *TodoRepository) UpdateById(ctx context.Context, id string, requestBody bson.M) (*mongo.UpdateResult, error) {
-	updateFields := bson.M{}
-	for key, value := range requestBody {
-		updateFields[key] = value
+// TODO: This is a bad idea, should specify which fields to update
+func (r *TodoRepository) UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error) {
+	// use a map[string]interface{} since we don't know what's gonna be in the request
+	updateFields := bson.M{
+		"text": requestBody.Text,
 	}
 
 	objId, err := primitive.ObjectIDFromHex(id)

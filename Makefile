@@ -1,5 +1,5 @@
 run:
 	go run .
 
-run-dev:
+dev:
 	./bin/air
