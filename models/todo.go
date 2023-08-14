@@ -1,5 +1,13 @@
 package models
 
+import "time"
+
 type Todo struct {
-	Text string
+	Text     string
+	Metadata TodoMetadata
+}
+
+type TodoMetadata struct {
+	Timestamp time.Time
+	User      string
 }

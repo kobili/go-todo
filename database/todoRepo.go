@@ -10,7 +10,7 @@ import (
 )
 
 type TodoRepo interface {
-	AddOne(ctx context.Context, document models.Todo) (*mongo.InsertOneResult, error)
+	AddOne(ctx context.Context, todo models.Todo) (*mongo.InsertOneResult, error)
 	FindById(ctx context.Context, id string) (primitive.M, error)
 	UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error)
 }
@@ -26,8 +26,8 @@ func NewTodoRepository(mongoClient *mongo.Client) *TodoRepository {
 	}
 }
 
-func (r *TodoRepository) AddOne(ctx context.Context, document models.Todo) (*mongo.InsertOneResult, error) {
-	result, err := r.todoCollection.InsertOne(ctx, document)
+func (r *TodoRepository) AddOne(ctx context.Context, todo models.Todo) (*mongo.InsertOneResult, error) {
+	result, err := r.todoCollection.InsertOne(ctx, todo)
 	if err != nil {
 		return nil, err
 	}

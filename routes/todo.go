@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -34,7 +36,13 @@ func (t *TodoRouteHandler) createTodo(c *fiber.Ctx) error {
 		return err
 	}
 
-	result, err := t.todoRepo.AddOne(c.Context(), models.Todo{Text: reqBody.Text})
+	result, err := t.todoRepo.AddOne(c.Context(), models.Todo{
+		Text: reqBody.Text,
+		Metadata: models.TodoMetadata{
+			Timestamp: time.Now(),
+			User:      "Anon",
+		},
+	})
 	if err != nil {
 		return err
 	}
