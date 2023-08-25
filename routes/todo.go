@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"go-todo/database"
@@ -79,8 +80,9 @@ func (t *TodoRouteHandler) updateTodoById(c *fiber.Ctx) error {
 
 func (t *TodoRouteHandler) replaceTodoById(c *fiber.Ctx) error {
 	requestBody := struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
 		Text string
-	}{}
+	}{ID: primitive.NilObjectID}
 	if err := c.BodyParser(&requestBody); err != nil {
 		return err
 	}

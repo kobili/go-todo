@@ -11,7 +11,7 @@ import (
 
 type TodoRepo interface {
 	AddOne(ctx context.Context, document models.Todo) (*mongo.InsertOneResult, error)
-	FindById(ctx context.Context, id string) (primitive.M, error)
+	FindById(ctx context.Context, id string) (*models.Todo, error)
 	UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error)
 	ReplaceById(ctx context.Context, id string, todo models.Todo) (*mongo.UpdateResult, error)
 }
@@ -36,8 +36,8 @@ func (r *TodoRepository) AddOne(ctx context.Context, document models.Todo) (*mon
 	return result, nil
 }
 
-func (r *TodoRepository) FindById(ctx context.Context, id string) (primitive.M, error) {
-	var result bson.M
+func (r *TodoRepository) FindById(ctx context.Context, id string) (*models.Todo, error) {
+	var result models.Todo
 
 	objId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *TodoRepository) FindById(ctx context.Context, id string) (primitive.M, 
 		return nil, err
 	}
 
-	return result, nil
+	return &result, nil
 }
 
 func (r *TodoRepository) UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error) {
