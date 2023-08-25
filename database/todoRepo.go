@@ -14,6 +14,7 @@ type TodoRepo interface {
 	FindById(ctx context.Context, id string) (*models.Todo, error)
 	UpdateById(ctx context.Context, id string, requestBody struct{ Text string }) (*mongo.UpdateResult, error)
 	ReplaceById(ctx context.Context, id string, todo models.Todo) (*mongo.UpdateResult, error)
+	FindAllTodos(ctx context.Context) (*[]models.Todo, error)
 }
 
 type TodoRepository struct {
@@ -94,4 +95,18 @@ func (r *TodoRepository) ReplaceById(ctx context.Context, id string, todo models
 	}
 
 	return result, nil
+}
+
+func (r *TodoRepository) FindAllTodos(ctx context.Context) (*[]models.Todo, error) {
+	cursor, err := r.todoCollection.Find(ctx, bson.D{})
+	if err != nil {
+		return nil, err
+	}
+
+	results := []models.Todo{}
+	if err = cursor.All(ctx, &results); err != nil {
+		return nil, err
+	}
+
+	return &results, nil
 }

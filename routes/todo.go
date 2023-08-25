@@ -22,6 +22,7 @@ func NewTodoRouteHandler(todoRepository database.TodoRepo) *TodoRouteHandler {
 func (t *TodoRouteHandler) SetupRoutes(app *fiber.App) {
 	app.Post("/todos", t.createTodo)
 	app.Get("/todos/:todoId", t.getTodoById)
+	app.Get("/todos", t.getAllTodos)
 	app.Patch("/todos/:todoId", t.updateTodoById)
 	app.Put("/todos/:todoId", t.replaceTodoById)
 }
@@ -97,4 +98,13 @@ func (t *TodoRouteHandler) replaceTodoById(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(result)
+}
+
+func (t *TodoRouteHandler) getAllTodos(c *fiber.Ctx) error {
+	results, err := t.todoRepo.FindAllTodos(c.Context())
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(results)
 }
